@@ -46,12 +46,25 @@ class UserLoginResponse(BaseModel):
     email: Optional[str] = None
 
 
+# class UserOut(BaseModel):
+#     userId: int
+#     firstName: str
+#     lastName: str
+#     email: EmailStr
+#     phoneNumber: str
+#     registrationStatus: bool
+#     isActive: bool
+#     createdAt: datetime
+
 class UserOut(BaseModel):
     userId: int
     firstName: str
     lastName: str
     email: EmailStr
     phoneNumber: str
+    departmentName: str       # ✅ Add this
+    roleId: int
+    subscriptionTypeName: str # ✅ Add this
     registrationStatus: bool
     isActive: bool
     createdAt: datetime

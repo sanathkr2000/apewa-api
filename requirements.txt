@@ -12,3 +12,6 @@ rich
 python-multipart
 bcrypt==3.2.0
 python-jose~=3.5.0
+aiomysql
+asgi-correlation-id
+mysql

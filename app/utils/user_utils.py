@@ -1,6 +1,14 @@
+# utils/user_utils.py
+
 import logging
 from app.db import users
 from app.db.database import database
+from app.db.Departments import departments
+from app.db.SubscriptionTypes import subscriptionTypes
+from sqlalchemy import select
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
+from fastapi import status
 
 logger = logging.getLogger(__name__)
 
@@ -10,13 +18,84 @@ async def fetch_user_by_email(email: str):
     user = await database.fetch_one(query)
     return user
 
+# async def fetch_all_users():
+#     query = users.select()
+#     return await database.fetch_all(query)
+
+
 async def fetch_all_users():
-    query = users.select()
-    return await database.fetch_all(query)
+    join_query = (
+        users
+        .join(departments, users.c.departmentId == departments.c.departmentId)
+        .join(subscriptionTypes, users.c.subscriptionTypeId == subscriptionTypes.c.subscriptionTypeId)
+    )
+
+    query = select(
+        users.c.userId,
+        users.c.firstName,
+        users.c.lastName,
+        users.c.email,
+        users.c.phoneNumber,
+        users.c.roleId,
+        users.c.registrationStatus,
+        users.c.isActive,
+        users.c.createdAt,
+        departments.c.departmentId.label("dept_id"),
+        departments.c.departmentName.label("dept_name"),
+        subscriptionTypes.c.subscriptionTypeId.label("sub_id"),
+        subscriptionTypes.c.subscriptionTypeName.label("sub_name")
+    ).select_from(join_query)
+
+    try:
+        results = await database.fetch_all(query)
+
+        users_data = []
+        for row in results:
+            user_dict = {
+                "userId": row["userId"],
+                "firstName": row["firstName"],
+                "lastName": row["lastName"],
+                "email": row["email"],
+                "phoneNumber": row["phoneNumber"],
+                "roleId": row["roleId"],
+                "registrationStatus": row["registrationStatus"],
+                "isActive": row["isActive"],
+                "createdAt": row["createdAt"],
+                "department": {
+                    "id": row["dept_id"],
+                    "name": row["dept_name"]
+                },
+                "subscriptionType": {
+                    "id": row["sub_id"],
+                    "name": row["sub_name"]
+                }
+            }
+            users_data.append(user_dict)
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=jsonable_encoder({
+                "message": "Users fetched successfully",
+                "data": users_data
+            })
+        )
+
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Failed to fetch users", "error": str(e)}
+        )
+
 
 async def fetch_user_by_id(user_id: int):
     query = users.select().where(users.c.userId == user_id)
     return await database.fetch_one(query)
+
+
+
+
+
 
 
 # async def update_user_registration_status(user_id: int):
