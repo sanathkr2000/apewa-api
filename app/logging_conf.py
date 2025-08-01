@@ -61,7 +61,7 @@ def configure_logging() -> None:
                     "class": "logging.handlers.RotatingFileHandler",
                     "level": "DEBUG",
                     "formatter": "file",
-                    "filename": "apewa.logs",
+                    "filename": "apewa.log",
                     "maxBytes": 1024 * 1024 * 2,  # 2MB
                     "backupCount": 5,
                     "encoding": "utf8",

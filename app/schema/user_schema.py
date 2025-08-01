@@ -62,9 +62,9 @@ class UserOut(BaseModel):
     lastName: str
     email: EmailStr
     phoneNumber: str
-    departmentName: str       # ✅ Add this
+    departmentName: str
     roleId: int
-    subscriptionTypeName: str # ✅ Add this
+    subscriptionTypeName: str
     registrationStatus: bool
     isActive: bool
     createdAt: datetime
@@ -73,3 +73,13 @@ class UserOut(BaseModel):
 
 class RegistrationStatusUpdate(BaseModel):
     status: bool
+
+
+class DepartmentSchema(BaseModel):
+    departmentId: int
+    departmentName: str
+
+
+class SubscriptionTypeSchema(BaseModel):
+    subscriptionTypeId: int
+    subscriptionTypeName: str

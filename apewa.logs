@@ -187,3 +187,97 @@
 {"asctime": "25-07-31T17:35:09", "msecs": 75.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 76, "message": "Application shutdown complete."}
 {"asctime": "25-07-31T17:35:09", "msecs": 81.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 94, "message": "Finished server process [12332]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]"}
 {"asctime": "25-07-31T17:35:12", "msecs": 162.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 62, "message": "Application startup complete."}
+{"asctime": "25-07-31T18:23:24", "msecs": 371.0, "levelname": "ERROR", "correlation_id": "-", "name": "app.main", "lineno": 32, "message": "HTTPException: 401Token has expired"}
+{"asctime": "25-07-31T18:23:24", "msecs": 376.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:65111 - \"GET /users HTTP/1.1\" 401"}
+{"asctime": "25-07-31T18:23:38", "msecs": 154.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.services.userlogin_service", "lineno": 69, "message": "Authenticating user", "email": "sa****@gmail.com"}
+{"asctime": "25-07-31T18:23:38", "msecs": 163.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.utils.user_utils", "lineno": 16, "message": "Fetching user by email: sanath@gmail.com"}
+{"asctime": "25-07-31T18:23:39", "msecs": 357.0, "levelname": "INFO", "correlation_id": "-", "name": "app.services.userlogin_service", "lineno": 122, "message": "User login successful", "email": "sa****@gmail.com"}
+{"asctime": "25-07-31T18:23:39", "msecs": 364.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:65112 - \"POST /api/user/login HTTP/1.1\" 200"}
+{"asctime": "25-07-31T18:23:58", "msecs": 273.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.utils.user_utils", "lineno": 16, "message": "Fetching user by email: sanath@gmail.com"}
+{"asctime": "25-07-31T18:23:58", "msecs": 396.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:65114 - \"GET /users HTTP/1.1\" 200"}
+{"asctime": "25-07-31T19:19:57", "msecs": 299.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 62, "message": "Application startup complete."}
+{"asctime": "25-07-31T19:19:58", "msecs": 897.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49215 - \"GET / HTTP/1.1\" 404"}
+{"asctime": "25-07-31T19:20:07", "msecs": 260.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49216 - \"GET /docs HTTP/1.1\" 200"}
+{"asctime": "25-07-31T19:20:07", "msecs": 465.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49216 - \"GET /openapi.json HTTP/1.1\" 200"}
+{"asctime": "25-07-31T19:22:33", "msecs": 691.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 264, "message": "Shutting down"}
+{"asctime": "25-07-31T19:22:33", "msecs": 794.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 67, "message": "Waiting for application shutdown."}
+{"asctime": "25-07-31T19:22:33", "msecs": 794.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 76, "message": "Application shutdown complete."}
+{"asctime": "25-07-31T19:22:33", "msecs": 810.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 94, "message": "Finished server process [13124]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]"}
+{"asctime": "25-07-31T19:23:55", "msecs": 366.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 62, "message": "Application startup complete."}
+{"asctime": "25-07-31T19:24:07", "msecs": 851.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49243 - \"GET / HTTP/1.1\" 404"}
+{"asctime": "25-07-31T19:24:21", "msecs": 635.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49244 - \"GET /docs HTTP/1.1\" 200"}
+{"asctime": "25-07-31T19:24:21", "msecs": 819.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49244 - \"GET /openapi.json HTTP/1.1\" 200"}
+{"asctime": "25-07-31T19:24:28", "msecs": 490.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49245 - \"GET /api/user/departments HTTP/1.1\" 200"}
+{"asctime": "25-07-31T19:24:37", "msecs": 979.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49247 - \"GET /api/user/subscription-types HTTP/1.1\" 200"}
+{"asctime": "25-07-31T19:29:26", "msecs": 643.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 62, "message": "Application startup complete."}
+{"asctime": "25-07-31T19:29:28", "msecs": 246.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49268 - \"GET / HTTP/1.1\" 404"}
+{"asctime": "25-07-31T19:29:32", "msecs": 693.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49268 - \"GET /docs HTTP/1.1\" 200"}
+{"asctime": "25-07-31T19:29:32", "msecs": 878.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49268 - \"GET /openapi.json HTTP/1.1\" 200"}
+{"asctime": "25-07-31T19:29:39", "msecs": 649.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49269 - \"GET /api/user/departments HTTP/1.1\" 200"}
+{"asctime": "25-07-31T19:31:17", "msecs": 100.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 264, "message": "Shutting down"}
+{"asctime": "25-07-31T19:31:17", "msecs": 205.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 67, "message": "Waiting for application shutdown."}
+{"asctime": "25-07-31T19:31:17", "msecs": 205.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 76, "message": "Application shutdown complete."}
+{"asctime": "25-07-31T19:31:17", "msecs": 220.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 94, "message": "Finished server process [23624]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]"}
+{"asctime": "25-07-31T19:32:22", "msecs": 397.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 62, "message": "Application startup complete."}
+{"asctime": "25-07-31T19:32:29", "msecs": 974.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 62, "message": "Application startup complete."}
+{"asctime": "25-07-31T19:32:30", "msecs": 75.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49298 - \"GET / HTTP/1.1\" 404"}
+{"asctime": "25-07-31T19:32:30", "msecs": 109.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49298 - \"GET /favicon.ico HTTP/1.1\" 404"}
+{"asctime": "25-07-31T19:32:33", "msecs": 418.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49298 - \"GET /docs HTTP/1.1\" 200"}
+{"asctime": "25-07-31T19:32:33", "msecs": 684.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49298 - \"GET /openapi.json HTTP/1.1\" 200"}
+{"asctime": "25-07-31T19:32:40", "msecs": 67.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49299 - \"GET /api/user/departments HTTP/1.1\" 200"}
+{"asctime": "25-08-01T10:27:58", "msecs": 241.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 62, "message": "Application startup complete."}
+{"asctime": "25-08-01T10:28:03", "msecs": 910.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49962 - \"GET / HTTP/1.1\" 404"}
+{"asctime": "25-08-01T10:28:06", "msecs": 695.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49962 - \"GET /docs HTTP/1.1\" 200"}
+{"asctime": "25-08-01T10:28:06", "msecs": 923.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49962 - \"GET /openapi.json HTTP/1.1\" 200"}
+{"asctime": "25-08-01T10:28:14", "msecs": 967.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49963 - \"GET /api/user/subscription-types HTTP/1.1\" 200"}
+{"asctime": "25-08-01T10:28:24", "msecs": 964.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49969 - \"GET /api/user/departments HTTP/1.1\" 200"}
+{"asctime": "25-08-01T10:28:47", "msecs": 497.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.services.userlogin_service", "lineno": 72, "message": "Authenticating user", "email": "sa****@gmail.com"}
+{"asctime": "25-08-01T10:28:47", "msecs": 497.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.utils.user_utils", "lineno": 16, "message": "Fetching user by email: sanath@gmail.com"}
+{"asctime": "25-08-01T10:28:47", "msecs": 838.0, "levelname": "INFO", "correlation_id": "-", "name": "app.services.userlogin_service", "lineno": 125, "message": "User login successful", "email": "sa****@gmail.com"}
+{"asctime": "25-08-01T10:28:47", "msecs": 838.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49970 - \"POST /api/user/login HTTP/1.1\" 200"}
+{"asctime": "25-08-01T10:30:58", "msecs": 769.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.utils.user_utils", "lineno": 16, "message": "Fetching user by email: sanath@gmail.com"}
+{"asctime": "25-08-01T10:30:59", "msecs": 34.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49983 - \"GET /users HTTP/1.1\" 200"}
+{"asctime": "25-08-01T10:31:13", "msecs": 23.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.utils.user_utils", "lineno": 16, "message": "Fetching user by email: sanath@gmail.com"}
+{"asctime": "25-08-01T10:31:13", "msecs": 81.0, "levelname": "ERROR", "correlation_id": "-", "name": "app.main", "lineno": 33, "message": "HTTPException: 403User privileges required"}
+{"asctime": "25-08-01T10:31:13", "msecs": 81.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49986 - \"GET /users/me HTTP/1.1\" 403"}
+{"asctime": "25-08-01T10:31:41", "msecs": 530.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.utils.user_utils", "lineno": 16, "message": "Fetching user by email: sanath@gmail.com"}
+{"asctime": "25-08-01T10:31:41", "msecs": 586.0, "levelname": "ERROR", "correlation_id": "-", "name": "app.main", "lineno": 33, "message": "HTTPException: 403User privileges required"}
+{"asctime": "25-08-01T10:31:41", "msecs": 586.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49987 - \"GET /users/1 HTTP/1.1\" 403"}
+{"asctime": "25-08-01T10:32:12", "msecs": 234.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.utils.user_utils", "lineno": 16, "message": "Fetching user by email: sanath@gmail.com"}
+{"asctime": "25-08-01T10:32:12", "msecs": 277.0, "levelname": "ERROR", "correlation_id": "-", "name": "app.main", "lineno": 33, "message": "HTTPException: 403User privileges required"}
+{"asctime": "25-08-01T10:32:12", "msecs": 277.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49988 - \"GET /users/1 HTTP/1.1\" 403"}
+{"asctime": "25-08-01T10:32:16", "msecs": 152.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.utils.user_utils", "lineno": 16, "message": "Fetching user by email: sanath@gmail.com"}
+{"asctime": "25-08-01T10:32:16", "msecs": 210.0, "levelname": "ERROR", "correlation_id": "-", "name": "app.main", "lineno": 33, "message": "HTTPException: 403User privileges required"}
+{"asctime": "25-08-01T10:32:16", "msecs": 210.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49988 - \"GET /users/me HTTP/1.1\" 403"}
+{"asctime": "25-08-01T10:32:23", "msecs": 873.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.utils.user_utils", "lineno": 16, "message": "Fetching user by email: sanath@gmail.com"}
+{"asctime": "25-08-01T10:32:23", "msecs": 931.0, "levelname": "ERROR", "correlation_id": "-", "name": "app.main", "lineno": 33, "message": "HTTPException: 403User privileges required"}
+{"asctime": "25-08-01T10:32:23", "msecs": 931.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49990 - \"GET /users/1 HTTP/1.1\" 403"}
+{"asctime": "25-08-01T10:33:16", "msecs": 794.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.services.userlogin_service", "lineno": 72, "message": "Authenticating user", "email": "ja******@gmail.com"}
+{"asctime": "25-08-01T10:33:16", "msecs": 796.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.utils.user_utils", "lineno": 16, "message": "Fetching user by email: jagadush@gmail.com"}
+{"asctime": "25-08-01T10:33:16", "msecs": 851.0, "levelname": "WARNING", "correlation_id": "-", "name": "app.services.userlogin_service", "lineno": 78, "message": "User not found", "email": "ja******@gmail.com"}
+{"asctime": "25-08-01T10:33:16", "msecs": 851.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:49999 - \"POST /api/user/login HTTP/1.1\" 403"}
+{"asctime": "25-08-01T10:33:43", "msecs": 414.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.services.userlogin_service", "lineno": 72, "message": "Authenticating user", "email": "ko**@gmail.com"}
+{"asctime": "25-08-01T10:33:43", "msecs": 417.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.utils.user_utils", "lineno": 16, "message": "Fetching user by email: koti@gmail.com"}
+{"asctime": "25-08-01T10:33:43", "msecs": 741.0, "levelname": "INFO", "correlation_id": "-", "name": "app.services.userlogin_service", "lineno": 125, "message": "User login successful", "email": "ko**@gmail.com"}
+{"asctime": "25-08-01T10:33:43", "msecs": 741.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:50061 - \"POST /api/user/login HTTP/1.1\" 200"}
+{"asctime": "25-08-01T10:34:00", "msecs": 168.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.utils.user_utils", "lineno": 16, "message": "Fetching user by email: koti@gmail.com"}
+{"asctime": "25-08-01T10:34:00", "msecs": 225.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:50062 - \"GET /users/me HTTP/1.1\" 200"}
+{"asctime": "25-08-01T10:34:06", "msecs": 237.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.utils.user_utils", "lineno": 16, "message": "Fetching user by email: koti@gmail.com"}
+{"asctime": "25-08-01T10:34:06", "msecs": 293.0, "levelname": "ERROR", "correlation_id": "-", "name": "app.main", "lineno": 33, "message": "HTTPException: 403Access denied"}
+{"asctime": "25-08-01T10:34:06", "msecs": 293.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:50063 - \"GET /users/1 HTTP/1.1\" 403"}
+{"asctime": "25-08-01T10:34:11", "msecs": 697.0, "levelname": "DEBUG", "correlation_id": "-", "name": "app.utils.user_utils", "lineno": 16, "message": "Fetching user by email: koti@gmail.com"}
+{"asctime": "25-08-01T10:34:11", "msecs": 807.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.access", "lineno": 473, "message": "127.0.0.1:50064 - \"GET /users/2 HTTP/1.1\" 200"}
+{"asctime": "25-08-01T10:50:28", "msecs": 73.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 264, "message": "Shutting down"}
+{"asctime": "25-08-01T10:50:28", "msecs": 180.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 67, "message": "Waiting for application shutdown."}
+{"asctime": "25-08-01T10:50:28", "msecs": 180.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 76, "message": "Application shutdown complete."}
+{"asctime": "25-08-01T10:50:28", "msecs": 180.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 94, "message": "Finished server process [10648]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]"}
+{"asctime": "25-08-01T10:50:31", "msecs": 517.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 62, "message": "Application startup complete."}
+{"asctime": "25-08-01T10:51:02", "msecs": 778.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 264, "message": "Shutting down"}
+{"asctime": "25-08-01T10:51:02", "msecs": 891.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 67, "message": "Waiting for application shutdown."}
+{"asctime": "25-08-01T10:51:02", "msecs": 891.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 76, "message": "Application shutdown complete."}
+{"asctime": "25-08-01T10:51:02", "msecs": 891.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 94, "message": "Finished server process [18440]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]"}
+{"asctime": "25-08-01T10:51:05", "msecs": 758.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 62, "message": "Application startup complete."}
+{"asctime": "25-08-01T10:53:26", "msecs": 702.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 264, "message": "Shutting down"}
+{"asctime": "25-08-01T10:53:26", "msecs": 805.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 67, "message": "Waiting for application shutdown."}
+{"asctime": "25-08-01T10:53:26", "msecs": 805.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 76, "message": "Application shutdown complete."}
+{"asctime": "25-08-01T10:53:26", "msecs": 805.0, "levelname": "INFO", "correlation_id": "-", "name": "uvicorn.error", "lineno": 94, "message": "Finished server process [13748]", "color_message": "Finished server process [\u001b[36m%d\u001b[0m]"}
