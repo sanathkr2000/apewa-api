@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, EmailStr
 from typing import Optional
-from datetime import datetime  # ✅ Correct
+from datetime import datetime
 
 class UserRegisterInput(BaseModel):
     firstName: str
@@ -83,3 +83,10 @@ class DepartmentSchema(BaseModel):
 class SubscriptionTypeSchema(BaseModel):
     subscriptionTypeId: int
     subscriptionTypeName: str
+
+
+
+class UserUpdateRequest(BaseModel):
+    firstName: Optional[str]
+    lastName: Optional[str]
+    phoneNumber: Optional[str]

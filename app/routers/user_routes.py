@@ -7,21 +7,34 @@ from app.security import get_current_admin_user, get_current_regular_user
 user_router = APIRouter()
 
 # Admin: Get all users
-@user_router.get("/users", summary="Get all users (Admin only)")
+@user_router.get(
+    "/users",
+    summary="Get all users (Admin only)",
+    tags=["Admin Users"]
+)
 async def get_all_users(current_user=Depends(get_current_admin_user)):
     return await fetch_all_users()
 
 # User: Get your own profile
-@user_router.get("/users/me", summary="Get current user profile")
+@user_router.get(
+    "/users/me",
+    summary="Get current user profile",
+    tags=["User Profile"]
+)
 async def get_my_profile(current_user=Depends(get_current_regular_user)):
     return current_user
 
 # User: Get specific user by ID (only your own ID)
-@user_router.get("/users/{user_id}", summary="Get user by ID (User only)")
+@user_router.get(
+    "/users/{user_id}",
+    summary="Get user by ID (User only)",
+    tags=["User Profile"]
+)
 async def get_user_by_id_route(user_id: int, current_user=Depends(get_current_regular_user)):
     if current_user["userId"] != user_id:
         raise HTTPException(status_code=403, detail="Access denied")
     return await fetch_user_by_id(user_id)
+
 
 
 # @user_router.put("/users/{user_id}/approve", summary="Approve user registration (Admin only)")

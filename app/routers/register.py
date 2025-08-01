@@ -10,7 +10,13 @@ logger = logging.getLogger("app.register")
 
 register_router = APIRouter()
 
-@register_router.post("/", response_model=UserRegisterResponse, status_code=status.HTTP_201_CREATED)
+@register_router.post(
+    "/",
+    response_model=UserRegisterResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["User Registration"],  # 👈 Add this line
+    summary="Register With Payment"
+)
 async def register_with_payment(
     firstName: str = Form(...),
     lastName: str = Form(...),
@@ -21,7 +27,7 @@ async def register_with_payment(
     roleId: int = Form(...),
     subscriptionTypeId: int = Form(...),
     transactionId: Optional[str] = Form(None),
-    paymentEvidence: Optional[UploadFile] = File(None),  # ✅ Optional File
+    paymentEvidence: Optional[UploadFile] = File(None),  # Optional File
 ):
     user_data = {
         "firstName": firstName,

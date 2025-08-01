@@ -109,7 +109,7 @@ async def user_login_details(login):
         )
 
     try:
-        # ✅ FIXED: pass both email and roleId
+        # FIXED: pass both email and roleId
         token = create_access_token(email=login.user_email, role_id=user["roleId"])
     except Exception as e:
         logger.exception("Token creation failed", extra={"email": login.user_email})

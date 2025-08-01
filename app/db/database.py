@@ -1,4 +1,4 @@
-from app.db.metadata import metadata  # ✅ Correct — your SQLAlchemy metadata
+from app.db.metadata import metadata  # Correct — your SQLAlchemy metadata
 import databases
 import sqlalchemy
 from app.config import config

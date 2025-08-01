@@ -32,21 +32,25 @@ async def fetch_all_users():
         .join(subscriptionTypes, users.c.subscriptionTypeId == subscriptionTypes.c.subscriptionTypeId)
     )
 
-    query = select(
-        users.c.userId,
-        users.c.firstName,
-        users.c.lastName,
-        users.c.email,
-        users.c.phoneNumber,
-        users.c.roleId,
-        users.c.registrationStatus,
-        users.c.isActive,
-        users.c.createdAt,
-        departments.c.departmentId.label("dept_id"),
-        departments.c.departmentName.label("dept_name"),
-        subscriptionTypes.c.subscriptionTypeId.label("sub_id"),
-        subscriptionTypes.c.subscriptionTypeName.label("sub_name")
-    ).select_from(join_query)
+    query = (
+        select(
+            users.c.userId,
+            users.c.firstName,
+            users.c.lastName,
+            users.c.email,
+            users.c.phoneNumber,
+            users.c.roleId,
+            users.c.registrationStatus,
+            users.c.isActive,
+            users.c.createdAt,
+            departments.c.departmentId.label("dept_id"),
+            departments.c.departmentName.label("dept_name"),
+            subscriptionTypes.c.subscriptionTypeId.label("sub_id"),
+            subscriptionTypes.c.subscriptionTypeName.label("sub_name")
+        )
+        .select_from(join_query)
+        .where(users.c.isActive == 1)  # Only active users
+    )
 
     try:
         results = await database.fetch_all(query)
@@ -77,11 +81,11 @@ async def fetch_all_users():
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=jsonable_encoder({
-                "message": "Users fetched successfully",
+                "status_code":status.HTTP_200_OK,
+                "message": "Active users fetched successfully",
                 "data": users_data
             })
         )
-
 
     except Exception as e:
         return JSONResponse(

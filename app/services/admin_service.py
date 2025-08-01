@@ -16,20 +16,20 @@ logger = logging.getLogger(__name__)
 
 async def get_all_users_service(authorization: str = Header(...)):
     try:
-        # ✅ Extract token from Authorization header (format: "Bearer <token>")
+        # Extract token from Authorization header (format: "Bearer <token>")
         if not authorization.startswith("Bearer "):
             raise ValueError("Invalid Authorization header format")
 
         token = authorization.split(" ")[1]
 
-        # ✅ Fetch all users (token-based validation inside fetch_all_users)
+        # Fetch all users (token-based validation inside fetch_all_users)
         users_list = await fetch_all_users(token)
 
-        # ✅ Convert DB rows to Pydantic models and then to JSON serializable dicts
+        # Convert DB rows to Pydantic models and then to JSON serializable dicts
         users_data = [UserOut(**dict(user)) for user in users_list]
         json_ready_data = jsonable_encoder(users_data)
 
-        # ✅ Return structured response
+        # Return structured response
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
@@ -40,7 +40,7 @@ async def get_all_users_service(authorization: str = Header(...)):
         )
 
     except ValueError as ve:
-        logger.warning("🔐 Authorization Error: %s", ve)
+        logger.warning("Authorization Error: %s", ve)
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content={
@@ -50,7 +50,7 @@ async def get_all_users_service(authorization: str = Header(...)):
         )
 
     except Exception as e:
-        logger.exception("❌ Error in get_all_users_service")
+        logger.exception("Error in get_all_users_service")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
@@ -73,6 +73,17 @@ async def update_user_registration_status(user_id: int, is_approved: bool):
                 content={
                     "status_code": 404,
                     "message": f"User with ID {user_id} not found"
+                }
+            )
+
+        #  Check if user is active
+        if not user["isActive"]:
+            logger.warning(f"User with ID {user_id} is not active. Registration status not updated.")
+            return JSONResponse(
+                status_code=status.HTTP_403_FORBIDDEN,
+                content={
+                    "status_code": 403,
+                    "message": "Cannot update registration status for inactive user"
                 }
             )
 
@@ -114,3 +125,23 @@ async def update_user_registration_status(user_id: int, is_approved: bool):
                 "error": str(e)
             }
         )
+
+
+
+async def update_user_details(user_id: int, user_data: dict):
+    # Update the user
+    query = users.update().where(users.c.userId == user_id).values(**user_data)
+    result = await database.execute(query)
+
+    if result:  # If update affected rows
+        return {
+            "status_code": status.HTTP_200_OK,
+            "message": "User details updated successfully",
+            "updated_fields": user_data  # Show only changed fields
+        }
+    else:
+        return {
+            "status_code": status.HTTP_404_NOT_FOUND,
+            "message": "User not found or no changes made",
+            "updated_fields": {}
+        }
