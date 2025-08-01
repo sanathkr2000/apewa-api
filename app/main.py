@@ -1,6 +1,8 @@
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
+from starlette.responses import JSONResponse
+
 from app.db.database import database
 from app.logging_conf import configure_logging
 from fastapi.exception_handlers import http_exception_handler
@@ -30,11 +32,15 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+@app.get("/")
+async def root():
+    return JSONResponse(content={"message": "Welcome to APEWA Backend API"})
+
 app.include_router(register_router, prefix="/api/register")
 app.include_router(user_login_router, prefix="/api/user", tags=["User Login"])
-# app.include_router(admin_router, tags=["Admin"])  # ❌ Don't add a prefix here
+app.include_router(admin_router, prefix="/api/admin", tags=["Admin Users"])  # ✅ FIXED
 app.include_router(user_router)
-# app.include_router(reference_data_router, prefix="/api")
+
 
 @app.exception_handler(HTTPException)
 async def http_exception_handle_logging(request, exc):

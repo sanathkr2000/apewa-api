@@ -90,3 +90,7 @@ class UserUpdateRequest(BaseModel):
     firstName: Optional[str]
     lastName: Optional[str]
     phoneNumber: Optional[str]
+
+
+class UserActiveStatusUpdate(BaseModel):
+    isActive: bool
