@@ -26,6 +26,7 @@ app.include_router(register_router, prefix="/api/register")
 app.include_router(user_login_router, prefix="/api/user", tags=["User Login"])
 # app.include_router(admin_router, tags=["Admin"])  # ❌ Don't add a prefix here
 app.include_router(user_router)
+# app.include_router(reference_data_router, prefix="/api")
 
 @app.exception_handler(HTTPException)
 async def http_exception_handle_logging(request, exc):

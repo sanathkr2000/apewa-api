@@ -59,6 +59,9 @@ import logging
 from fastapi import status
 from starlette.responses import JSONResponse
 
+from app.db.Departments import departments
+from app.db.SubscriptionTypes import subscriptionTypes
+from app.db.database import database
 from app.schema.user_schema import UserLoginResponse
 from app.security import verify_password, create_access_token
 from app.utils.user_utils import fetch_user_by_email
@@ -132,3 +135,49 @@ async def user_login_details(login):
             email=user["email"],
         ).model_dump()
     )
+
+
+async def get_all_departments_response():
+    try:
+        query = departments.select()
+        result = await database.fetch_all(query)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status_code": status.HTTP_200_OK,
+                "message": "Departments fetched successfully",
+                "data": [dict(row) for row in result]
+            }
+        )
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "Failed to fetch departments",
+                "data": []
+            }
+        )
+
+
+async def get_all_subscription_types_response():
+    try:
+        query = subscriptionTypes.select()
+        result = await database.fetch_all(query)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status_code": status.HTTP_200_OK,
+                "message": "Subscription types fetched successfully",
+                "data": [dict(row) for row in result]
+            }
+        )
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "Failed to fetch subscription types",
+                "data": []
+            }
+        )
