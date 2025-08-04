@@ -1,5 +1,7 @@
+import json
 import logging
 from fastapi import APIRouter, HTTPException, status
+from starlette.responses import JSONResponse
 
 from app.schema.user_schema import UserLoginResponse, LoginRequest
 from app.services.userlogin_service import user_login_details,get_all_departments_response, get_all_subscription_types_response
@@ -20,28 +22,64 @@ async def login_user(login: LoginRequest):
             detail="Unexpected error during login"
         )
 
-# @user_login_router.get("/departments", status_code=status.HTTP_200_OK, tags=["User Login"])
-# async def get_departments():
-#     try:
-#         query = departments.select()
-#         return await database.fetch_all(query)
-#     except Exception:
-#         raise HTTPException(status_code=500, detail="Internal Server Error")
-#
-# @user_login_router.get("/subscription-types", status_code=status.HTTP_200_OK, tags=["User Login"])
-# async def get_subscription_types():
-#     try:
-#         query = subscriptionTypes.select()
-#         return await database.fetch_all(query)
-#     except Exception:
-#         raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
 
 @user_login_router.get("/departments", tags=["User Login"])
 async def get_departments():
-    return await get_all_departments_response()
+    try:
+        response = await get_all_departments_response()
 
-@user_login_router.get("/subscription-types", tags=["User Login"])
+        # If it's a FastAPI JSONResponse or similar
+        if hasattr(response, 'body'):
+            data = json.loads(response.body)
+            return {
+                "status_code": status.HTTP_200_OK,
+                "message": data.get("message", "Departments fetched successfully"),
+                "data": data.get("data", [])
+            }
+
+        # If it's just raw data (list of departments), no need to decode
+        return {
+            "status_code": status.HTTP_200_OK,
+            "message": "Departments fetched successfully",
+            "data": response
+        }
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "Failed to fetch departments",
+                "error": str(e)
+            }
+        )
+
+
+@user_login_router.get("/subscriptions", tags=["User Login"])
 async def get_subscription_types():
-    return await get_all_subscription_types_response()
+    try:
+        response = await get_all_subscription_types_response()
+
+        if hasattr(response, 'body'):
+            data = json.loads(response.body)
+            return {
+                "status_code": status.HTTP_200_OK,
+                "message": data.get("message", "Subscription types fetched successfully"),
+                "data": data.get("data", [])
+            }
+
+        return {
+            "status_code": status.HTTP_200_OK,
+            "message": "Subscription types fetched successfully",
+            "data": response
+        }
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "Failed to fetch subscription types",
+                "error": str(e)
+            }
+        )

@@ -154,19 +154,16 @@ async def update_user_active_status_service(user_id: int, is_active: bool):
         user = await database.fetch_one(query)
 
         if not user:
-            return JSONResponse(
-                status_code=status.HTTP_404_NOT_FOUND,
-                content={"status_code": 404, "message": f"User ID {user_id} not found"}
-            )
+            return {
+                "status_code": status.HTTP_404_NOT_FOUND,
+                "message": f"User ID {user_id} not found"
+            }
 
         if user["isActive"] == is_active:
-            return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content={
-                    "status_code": 400,
-                    "message": f"User is already {'active' if is_active else 'inactive'}"
-                }
-            )
+            return {
+                "status_code": status.HTTP_400_BAD_REQUEST,
+                "message": f"User is already {'active' if is_active else 'inactive'}"
+            }
 
         update_query = (
             users.update()
@@ -175,17 +172,15 @@ async def update_user_active_status_service(user_id: int, is_active: bool):
         )
         await database.execute(update_query)
 
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={
-                "status_code": 200,
-                "message": f"User has been {'reactivated' if is_active else 'deactivated'} successfully"
-            }
-        )
+        return {
+            "status_code": status.HTTP_200_OK,
+            "message": f"User has been {'reactivated' if is_active else 'deactivated'} successfully"
+        }
 
     except Exception as e:
         logger.exception("Error updating user active status")
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"status_code": 500, "message": "Internal Server Error", "error": str(e)}
-        )
+        return {
+            "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "message": "Internal Server Error",
+            "error": str(e)
+        }

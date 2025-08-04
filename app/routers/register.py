@@ -14,8 +14,8 @@ register_router = APIRouter()
     "/",
     response_model=UserRegisterResponse,
     status_code=status.HTTP_201_CREATED,
-    tags=["User Registration"],  # 👈 Add this line
-    summary="Register With Payment"
+    tags=["User Registration"],
+    summary="Registration"
 )
 async def register_with_payment(
     firstName: str = Form(...),

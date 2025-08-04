@@ -93,6 +93,7 @@
 
 
 import os
+import re
 from datetime import datetime
 from passlib.hash import bcrypt
 from sqlalchemy import insert, select
@@ -149,7 +150,13 @@ async def register_user_with_payment_core(user_data: dict, paymentEvidence, tran
         # Save payment evidence file (if present)
         filename = None
         if paymentEvidence:
-            filename = f"{user_id}_{paymentEvidence.filename}"
+            timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+
+            original_name = paymentEvidence.filename.replace(" ", "_")
+            base_name, ext = os.path.splitext(original_name)
+            base_name = re.sub(r'\W+', '', base_name).strip()  # sanitize base name
+
+            filename = f"{base_name}_{timestamp}{ext}"
             file_path = os.path.join(UPLOAD_DIR, filename)
             with open(file_path, "wb") as f:
                 f.write(await paymentEvidence.read())

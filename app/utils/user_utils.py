@@ -1,6 +1,8 @@
 # utils/user_utils.py
 
 import logging
+from http.client import HTTPException
+
 from app.db import users
 from app.db.database import database
 from app.db.Departments import departments
@@ -78,19 +80,14 @@ async def fetch_all_users():
             }
             users_data.append(user_dict)
 
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content=jsonable_encoder({
-                "status_code":status.HTTP_200_OK,
-                "message": "Active users fetched successfully",
-                "data": users_data
-            })
-        )
+        #  Just return the data — DO NOT wrap with JSONResponse
+        return users_data
 
     except Exception as e:
-        return JSONResponse(
+        # Optional: log here instead of returning a JSONResponse
+        raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": "Failed to fetch users", "error": str(e)}
+            detail=f"Failed to fetch users: {str(e)}"
         )
 
 
