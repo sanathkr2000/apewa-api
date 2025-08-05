@@ -98,10 +98,10 @@ app = FastAPI(
     root_path="/api"  # Central prefix for all routes
 )
 
-# Root endpoint (optional)
+# Root endpoint
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"message": "APEWA Backend APIs"}
 
 # Routers - no need to prefix with `/api`
 app.include_router(register_router, prefix="/register")
