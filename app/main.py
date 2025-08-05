@@ -63,6 +63,7 @@
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 from fastapi.exception_handlers import http_exception_handler
 from asgiref.wsgi import WsgiToAsgi
@@ -96,6 +97,15 @@ app = FastAPI(
     redoc_url="/redoc",
     lifespan=lifespan,
     root_path="/api"  # Central prefix for all routes
+)
+
+# Allow all CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Root endpoint

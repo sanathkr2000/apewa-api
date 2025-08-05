@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 from fastapi import HTTPException, status, Depends
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from passlib.context import CryptContext
 from jose import jwt, ExpiredSignatureError, JWTError
@@ -63,17 +64,23 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 
 async def get_current_admin_user(current_user=Depends(get_current_user)):
     if current_user["roleId"] != 1:
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin privileges required"
+            content={
+                "status_code": status.HTTP_403_FORBIDDEN,
+                "message": "Admin privileges required"
+            }
         )
     return current_user
 
 async def get_current_regular_user(current_user=Depends(get_current_user)):
     if current_user["roleId"] != 2:
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User privileges required"
+            content={
+                "status_code": status.HTTP_403_FORBIDDEN,
+                "message": "User privileges required"
+            }
         )
     return current_user
 

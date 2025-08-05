@@ -4,6 +4,7 @@ import logging
 from http.client import HTTPException
 
 from app.db import users
+from app.db.Users import userPayments
 from app.db.database import database
 from app.db.Departments import departments
 from app.db.SubscriptionTypes import subscriptionTypes
@@ -11,8 +12,9 @@ from sqlalchemy import select
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi import status
-
 from app.schema.user_schema import UserOut
+from sqlalchemy import desc
+
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +34,7 @@ async def fetch_all_users():
         users
         .join(departments, users.c.departmentId == departments.c.departmentId)
         .join(subscriptionTypes, users.c.subscriptionTypeId == subscriptionTypes.c.subscriptionTypeId)
+        .outerjoin(userPayments, userPayments.c.userId == users.c.userId)
     )
 
     query = (
@@ -48,10 +51,17 @@ async def fetch_all_users():
             departments.c.departmentId.label("dept_id"),
             departments.c.departmentName.label("dept_name"),
             subscriptionTypes.c.subscriptionTypeId.label("sub_id"),
-            subscriptionTypes.c.subscriptionTypeName.label("sub_name")
+            subscriptionTypes.c.subscriptionTypeName.label("sub_name"),
+            subscriptionTypes.c.price.label("price"),
+
+            userPayments.c.userPaymentId,
+            userPayments.c.paymentEvidence,
+            userPayments.c.transactionId,
+            userPayments.c.createdAt.label("paymentCreatedAt")
         )
         .select_from(join_query)
-        .where(users.c.isActive == 1)  # Only active users
+        .where(users.c.isActive == 1)
+        .order_by(desc(users.c.createdAt))  # order by createdAt descending
     )
 
     try:
@@ -68,16 +78,25 @@ async def fetch_all_users():
                 "roleId": row["roleId"],
                 "registrationStatus": row["registrationStatus"],
                 "isActive": row["isActive"],
-                "createdAt": row["createdAt"],
+                "createdAt": row["createdAt"].isoformat(),
+
                 "department": {
                     "id": row["dept_id"],
                     "name": row["dept_name"]
                 },
                 "subscriptionType": {
                     "id": row["sub_id"],
-                    "name": row["sub_name"]
-                }
+                    "name": row["sub_name"],
+                    "price": float(row["price"]) if row["price"] is not None else 0.0
+                },
+                "payment": {
+                    "userPaymentId": row["userPaymentId"],
+                    "paymentEvidence": row["paymentEvidence"],
+                    "transactionId": row["transactionId"],
+                    "createdAt": row["paymentCreatedAt"].isoformat() if row["paymentCreatedAt"] else None
+                } if row["userPaymentId"] else None
             }
+
             users_data.append(user_dict)
 
         #  Just return the data — DO NOT wrap with JSONResponse

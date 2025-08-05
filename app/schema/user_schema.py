@@ -94,3 +94,15 @@ class UserUpdateRequest(BaseModel):
 
 class UserActiveStatusUpdate(BaseModel):
     isActive: bool
+
+
+
+class SubscriptionTypeResponse(BaseModel):
+    subscriptionTypeId: int
+    subscriptionTypeName: str
+    price: int
+
+
+class DepartmentResponse(BaseModel):
+    departmentId: int
+    departmentName: str

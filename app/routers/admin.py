@@ -39,6 +39,9 @@ async def update_my_profile(
     update_data: UserUpdateRequest,
     current_user=Depends(get_current_regular_user)
 ):
+    if isinstance(current_user, JSONResponse):
+        return current_user  # Return 403 response
+
     user_id = current_user["userId"]
     update_dict = update_data.dict(exclude_unset=True)
 

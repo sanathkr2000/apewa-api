@@ -139,7 +139,12 @@ async def user_login_details(login):
 
 async def get_all_departments_response():
     try:
-        query = departments.select()
+        # Select only active departments and fetch required columns only
+        query = departments.select().with_only_columns(
+            departments.c.departmentId,
+            departments.c.departmentName
+        ).where(departments.c.isActive == 1)
+
         result = await database.fetch_all(query)
         return JSONResponse(
             status_code=status.HTTP_200_OK,
@@ -149,7 +154,9 @@ async def get_all_departments_response():
                 "data": [dict(row) for row in result]
             }
         )
-    except Exception:
+
+    except Exception as e:
+        print(f"Error fetching departments: {e}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
@@ -162,8 +169,16 @@ async def get_all_departments_response():
 
 async def get_all_subscription_types_response():
     try:
-        query = subscriptionTypes.select()
+        # Only fetch required columns and apply filter isActive = 1
+        query = subscriptionTypes.select().with_only_columns(
+            subscriptionTypes.c.subscriptionTypeId,
+            subscriptionTypes.c.subscriptionTypeName,
+            subscriptionTypes.c.price
+        ).where(subscriptionTypes.c.isActive == 1)
+
         result = await database.fetch_all(query)
+
+        # Return as list of dicts
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
@@ -172,7 +187,8 @@ async def get_all_subscription_types_response():
                 "data": [dict(row) for row in result]
             }
         )
-    except Exception:
+    except Exception as e:
+        print(f"Error fetching subscriptions: {e}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
