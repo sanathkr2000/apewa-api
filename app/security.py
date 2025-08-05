@@ -24,7 +24,7 @@ credentials_exception = HTTPException(
 )
 
 def access_token_expire_minutes() -> int:
-    return 30
+    return 7 * 24 * 60  # 7 days = 10080 minutes
 
 def create_access_token(email: str, role_id: int) -> str:
     expire = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=access_token_expire_minutes())

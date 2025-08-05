@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi import status
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 from app.db.Departments import departments
@@ -24,7 +25,7 @@ async def get_all_users(current_user=Depends(get_current_admin_user)):
     try:
         # Handle the case when user is not admin
         if isinstance(current_user, JSONResponse):
-            return current_user  # Return 403 response directly
+            return current_user
 
         # Otherwise, continue with logic
         users = await fetch_all_users()
@@ -34,17 +35,20 @@ async def get_all_users(current_user=Depends(get_current_admin_user)):
             content={
                 "status_code": 200,
                 "message": "Active users fetched successfully",
-                "data": users
+                "data": jsonable_encoder(users)
             }
         )
 
+    except HTTPException as http_ex:
+        raise http_ex
+
     except Exception as e:
-        logger.error(f"Unexpected error in get_all_users: {str(e)}", exc_info=True)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "status_code": 500,
-                "message": "Internal Server Error"
+                "message": f"Failed to fetch users: {str(e)}",
+                "data": []
             }
         )
 

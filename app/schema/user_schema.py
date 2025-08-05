@@ -46,15 +46,6 @@ class UserLoginResponse(BaseModel):
     email: Optional[str] = None
 
 
-# class UserOut(BaseModel):
-#     userId: int
-#     firstName: str
-#     lastName: str
-#     email: EmailStr
-#     phoneNumber: str
-#     registrationStatus: bool
-#     isActive: bool
-#     createdAt: datetime
 
 class UserOut(BaseModel):
     userId: int
@@ -85,24 +76,56 @@ class SubscriptionTypeSchema(BaseModel):
     subscriptionTypeName: str
 
 
-
+# UserUpdate Schema
 class UserUpdateRequest(BaseModel):
     firstName: Optional[str]
     lastName: Optional[str]
     phoneNumber: Optional[str]
 
-
+# UserActiveStatusUpdate Schema
 class UserActiveStatusUpdate(BaseModel):
     isActive: bool
 
 
-
+# SubscriptionType Schemas
 class SubscriptionTypeResponse(BaseModel):
     subscriptionTypeId: int
     subscriptionTypeName: str
     price: int
 
-
+# Department types Schemas
 class DepartmentResponse(BaseModel):
     departmentId: int
     departmentName: str
+
+
+
+# Add Required Schemas
+class DepartmentData(BaseModel):
+    id: int
+    name: str
+
+class SubscriptionTypeData(BaseModel):
+    id: int
+    name: str
+    price: float
+
+class PaymentData(BaseModel):
+    userPaymentId: Optional[int]
+    paymentEvidence: Optional[str]
+    transactionId: Optional[str]
+    createdAt: Optional[datetime]
+
+class FetchUserResponse(BaseModel):
+    userId: int
+    firstName: str
+    lastName: str
+    email: EmailStr
+    phoneNumber: str
+    roleId: int
+    registrationStatus: bool
+    isActive: bool
+    createdAt: datetime
+    department: DepartmentData
+    subscriptionType: SubscriptionTypeData
+    payment: Optional[PaymentData]

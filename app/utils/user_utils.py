@@ -12,7 +12,7 @@ from sqlalchemy import select
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi import status
-from app.schema.user_schema import UserOut
+from app.schema.user_schema import UserOut, FetchUserResponse, DepartmentData, SubscriptionTypeData, PaymentData
 from sqlalchemy import desc
 
 
@@ -69,37 +69,35 @@ async def fetch_all_users():
 
         users_data = []
         for row in results:
-            user_dict = {
-                "userId": row["userId"],
-                "firstName": row["firstName"],
-                "lastName": row["lastName"],
-                "email": row["email"],
-                "phoneNumber": row["phoneNumber"],
-                "roleId": row["roleId"],
-                "registrationStatus": row["registrationStatus"],
-                "isActive": row["isActive"],
-                "createdAt": row["createdAt"].isoformat(),
+            user_data = FetchUserResponse(
+                userId=row["userId"],
+                firstName=row["firstName"],
+                lastName=row["lastName"],
+                email=row["email"],
+                phoneNumber=row["phoneNumber"],
+                roleId=row["roleId"],
+                registrationStatus=row["registrationStatus"],
+                isActive=row["isActive"],
+                createdAt=row["createdAt"],
+                department=DepartmentData(
+                    id=row["dept_id"],
+                    name=row["dept_name"]
+                ),
+                subscriptionType=SubscriptionTypeData(
+                    id=row["sub_id"],
+                    name=row["sub_name"],
+                    price=float(row["price"]) if row["price"] is not None else 0.0
+                ),
+                payment=PaymentData(
+                    userPaymentId=row["userPaymentId"],
+                    paymentEvidence=row["paymentEvidence"],
+                    transactionId=row["transactionId"],
+                    createdAt=row["paymentCreatedAt"]
+                ) if row["userPaymentId"] else None
+            )
 
-                "department": {
-                    "id": row["dept_id"],
-                    "name": row["dept_name"]
-                },
-                "subscriptionType": {
-                    "id": row["sub_id"],
-                    "name": row["sub_name"],
-                    "price": float(row["price"]) if row["price"] is not None else 0.0
-                },
-                "payment": {
-                    "userPaymentId": row["userPaymentId"],
-                    "paymentEvidence": row["paymentEvidence"],
-                    "transactionId": row["transactionId"],
-                    "createdAt": row["paymentCreatedAt"].isoformat() if row["paymentCreatedAt"] else None
-                } if row["userPaymentId"] else None
-            }
+            users_data.append(user_data)
 
-            users_data.append(user_dict)
-
-        #  Just return the data — DO NOT wrap with JSONResponse
         return users_data
 
     except Exception as e:
