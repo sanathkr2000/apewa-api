@@ -95,7 +95,7 @@ async def get_my_profile(current_user=Depends(get_current_regular_user)):
             content={
                 "status_code": 200,
                 "message": "User fetched successfully",
-                "data": user_data.dict()
+                "data": jsonable_encoder(user_data)
             }
         )
 

@@ -69,7 +69,7 @@ async def update_my_profile(
 # )
 
 @admin_router.put(
-    "/users/{user_id}/status",  # 👈 New clean path
+    "/users/{user_id}/status",  # New clean path
     summary="Admin: Update user's active status",
     tags=["Admin Users"]
 )

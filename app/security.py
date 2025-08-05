@@ -64,10 +64,10 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 
 async def get_current_admin_user(current_user=Depends(get_current_user)):
     if current_user["roleId"] != 1:
-        return JSONResponse(
+        raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            content={
-                "status_code": status.HTTP_403_FORBIDDEN,
+            detail={
+                "status_code": 403,
                 "message": "Admin privileges required"
             }
         )
