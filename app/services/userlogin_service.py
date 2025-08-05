@@ -57,12 +57,14 @@
 
 import logging
 from fastapi import status
+from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 
+from app.db import users
 from app.db.Departments import departments
 from app.db.SubscriptionTypes import subscriptionTypes
 from app.db.database import database
-from app.schema.user_schema import UserLoginResponse
+from app.schema.user_schema import UserLoginResponse, UserOut
 from app.security import verify_password, create_access_token
 from app.utils.user_utils import fetch_user_by_email
 
@@ -196,4 +198,48 @@ async def get_all_subscription_types_response():
                 "message": "Failed to fetch subscription types",
                 "data": []
             }
+        )
+
+async def fetch_user_by_id(user_id: int):
+    query = (
+        users.join(departments, users.c.departmentId == departments.c.departmentId)
+        .join(subscriptionTypes, users.c.subscriptionTypeId == subscriptionTypes.c.subscriptionTypeId)
+        .select()
+        .where(users.c.userId == user_id)
+    )
+
+    user_data = await database.fetch_one(query)
+
+    if user_data:
+        # Prepare response using UserOut schema
+        user_out = UserOut(
+            userId=user_data["userId"],
+            firstName=user_data["firstName"],
+            lastName=user_data["lastName"],
+            email=user_data["email"],
+            phoneNumber=user_data["phoneNumber"],
+            departmentName=user_data["departmentName"],
+            roleId=user_data["roleId"],  # You can remove this if not needed
+            subscriptionTypeName=user_data["subscriptionTypeName"],
+            registrationStatus=user_data["registrationStatus"],
+            isActive=user_data["isActive"],
+            createdAt=user_data["createdAt"]
+        )
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=jsonable_encoder({
+                "status_code": status.HTTP_200_OK,
+                "message": "User fetched successfully",
+                "data": user_out
+            })
+        )
+    else:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=jsonable_encoder({
+                "status_code": status.HTTP_404_NOT_FOUND,
+                "message": "User not found",
+                "data": None
+            })
         )

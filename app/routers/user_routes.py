@@ -10,7 +10,8 @@ from app.db.SubscriptionTypes import subscriptionTypes
 from app.db.database import database
 from app.logging_conf import logger
 from app.schema.user_schema import UserOut
-from app.utils.user_utils import fetch_all_users, fetch_user_by_id
+from app.services.userlogin_service import fetch_user_by_id
+from app.utils.user_utils import fetch_all_users
 from app.security import get_current_admin_user, get_current_regular_user
 
 user_router = APIRouter()
@@ -148,29 +149,5 @@ async def get_user_by_id_route(user_id: int, current_user=Depends(get_current_re
                 "message": "Internal Server Error"
             }
         )
-
-
-
-# @user_router.put("/users/{user_id}/approve", summary="Approve user registration (Admin only)")
-# async def approve_user_registration(user_id: int, current_user=Depends(get_current_admin_user)):
-#     result = await update_user_registration_status(user_id)
-#
-#     if result is None:
-#         raise HTTPException(status_code=404, detail="User not found")
-#     elif result == "AlreadyUpdated":
-#         raise HTTPException(status_code=400, detail="User already approved")
-#
-#     return {"
-#
-#     message": "User registration approved successfully"}
-
-
-# @user_router.put("/users/{user_id}/approve", summary="Approve user registration (Admin only)")
-# async def approve_user_registration(
-#     user_id: int,
-#     data: RegistrationStatusUpdate,
-#     current_user=Depends(get_current_admin_user)
-# ):
-#     return await update_user_registration_status(user_id, data.status)
 
 
