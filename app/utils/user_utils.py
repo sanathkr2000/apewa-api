@@ -58,8 +58,7 @@ async def fetch_all_users():
             userPayments.c.createdAt.label("paymentCreatedAt")
         )
         .select_from(join_query)
-        .where(users.c.isActive == 1)
-        .order_by(desc(users.c.createdAt))  # order by createdAt descending
+        .order_by(desc(users.c.userId))
     )
 
     try:

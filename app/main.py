@@ -76,6 +76,7 @@ from app.routers.register import register_router
 from app.routers.userlogin import user_login_router
 from app.routers.admin import admin_router
 from app.routers.user_routes import user_router
+from app.routers.password_routes import password_router
 
 logger = logging.getLogger(__name__)
 
@@ -118,6 +119,7 @@ app.include_router(register_router, prefix="/register")
 app.include_router(user_login_router, prefix="/user", tags=["User Login"])
 app.include_router(admin_router, prefix="/admin", tags=["Admin Users"])
 app.include_router(user_router)
+app.include_router(password_router)
 
 # Exception handler
 @app.exception_handler(HTTPException)
