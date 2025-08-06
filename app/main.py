@@ -61,12 +61,14 @@
 
 
 import logging
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, FileResponse
 from fastapi.exception_handlers import http_exception_handler
 from asgiref.wsgi import WsgiToAsgi
+from starlette.staticfiles import StaticFiles
 
 from app.db.database import database
 from app.logging_conf import configure_logging
@@ -120,6 +122,11 @@ app.include_router(user_login_router, prefix="/user", tags=["User Login"])
 app.include_router(admin_router, prefix="/admin", tags=["Admin Users"])
 app.include_router(user_router)
 app.include_router(password_router)
+
+# Serve static files from 'apewa-api/uploads'
+
+UPLOADS_DIR = os.path.join(os.path.dirname(__file__), "..", "uploads")
+app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
 # Exception handler
 @app.exception_handler(HTTPException)
