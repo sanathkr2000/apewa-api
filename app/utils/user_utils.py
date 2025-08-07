@@ -30,9 +30,9 @@ async def fetch_user_by_email(email: str):
 async def fetch_all_users():
     join_query = (
         users
-        .join(departments, users.c.departmentId == departments.c.departmentId)
-        .join(subscriptionTypes, users.c.subscriptionTypeId == subscriptionTypes.c.subscriptionTypeId)
-        .outerjoin(userPayments, userPayments.c.userId == users.c.userId)
+        .outerjoin(userPayments, users.c.userId == userPayments.c.userId)
+        .outerjoin(subscriptionTypes, userPayments.c.subscriptionTypeId == subscriptionTypes.c.subscriptionTypeId)
+        .outerjoin(departments, users.c.departmentId == departments.c.departmentId)
     )
 
     query = (
@@ -43,19 +43,23 @@ async def fetch_all_users():
             users.c.email,
             users.c.phoneNumber,
             users.c.roleId,
-            users.c.registrationStatus,
+            users.c.registrationStatusId.label("registrationStatus"),
             users.c.isActive,
             users.c.createdAt,
+
             departments.c.departmentId.label("dept_id"),
             departments.c.departmentName.label("dept_name"),
-            subscriptionTypes.c.subscriptionTypeId.label("sub_id"),
-            subscriptionTypes.c.subscriptionTypeName.label("sub_name"),
-            subscriptionTypes.c.price.label("price"),
 
             userPayments.c.userPaymentId,
-            userPayments.c.paymentEvidence,
             userPayments.c.transactionId,
-            userPayments.c.createdAt.label("paymentCreatedAt")
+            userPayments.c.paymentEvidence,
+            userPayments.c.createdAt.label("paymentCreatedAt"),
+            userPayments.c.subscriptionStartDate,
+            userPayments.c.subscriptionEndDate,
+
+            subscriptionTypes.c.subscriptionTypeId.label("sub_id"),
+            subscriptionTypes.c.subscriptionTypeName.label("sub_name"),
+            subscriptionTypes.c.price.label("price")
         )
         .select_from(join_query)
         .order_by(desc(users.c.userId))
@@ -66,39 +70,40 @@ async def fetch_all_users():
 
         users_data = []
         for row in results:
-            user_data = FetchUserResponse(
-                userId=row["userId"],
-                firstName=row["firstName"],
-                lastName=row["lastName"],
-                email=row["email"],
-                phoneNumber=row["phoneNumber"],
-                roleId=row["roleId"],
-                registrationStatus=row["registrationStatus"],
-                isActive=row["isActive"],
-                createdAt=row["createdAt"],
-                department=DepartmentData(
-                    id=row["dept_id"],
-                    name=row["dept_name"]
-                ),
-                subscriptionType=SubscriptionTypeData(
-                    id=row["sub_id"],
-                    name=row["sub_name"],
-                    price=float(row["price"]) if row["price"] is not None else 0.0
-                ),
-                payment=PaymentData(
-                    userPaymentId=row["userPaymentId"],
-                    paymentEvidence=row["paymentEvidence"],
-                    transactionId=row["transactionId"],
-                    createdAt=row["paymentCreatedAt"]
-                ) if row["userPaymentId"] else None
-            )
+            user_data = {
+                "userId": row["userId"],
+                "firstName": row["firstName"],
+                "lastName": row["lastName"],
+                "email": row["email"],
+                "phoneNumber": row["phoneNumber"],
+                "roleId": row["roleId"],
+                "registrationStatus": bool(row["registrationStatus"]),
+                "isActive": row["isActive"],
+                "createdAt": row["createdAt"],
+                "department": {
+                    "id": row["dept_id"],
+                    "name": row["dept_name"]
+                } if row["dept_id"] else None,
+                "subscriptionType": {
+                    "id": row["sub_id"],
+                    "name": row["sub_name"],
+                    "price": float(row["price"]) if row["price"] is not None else 0.0
+                } if row["sub_id"] else None,
+                "payment": {
+                    "userPaymentId": row["userPaymentId"],
+                    "paymentEvidence": row["paymentEvidence"],
+                    "transactionId": row["transactionId"],
+                    "createdAt": row["paymentCreatedAt"],
+                    "subscriptionStartDate": row["subscriptionStartDate"],
+                    "subscriptionEndDate": row["subscriptionEndDate"]
+                } if row["userPaymentId"] else None
+            }
 
             users_data.append(user_data)
 
         return users_data
 
     except Exception as e:
-        # Optional: log here instead of returning a JSONResponse
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch users: {str(e)}"

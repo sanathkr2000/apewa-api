@@ -101,6 +101,7 @@ async def get_my_profile(current_user=Depends(get_current_regular_user)):
         subscription_type_name = "Unknown"
         subscription_start_date = None
         subscription_end_date = None
+        payment_obj = None
 
         if payment_record:
             subscription_type_id = payment_record["subscriptionTypeId"]
@@ -115,7 +116,16 @@ async def get_my_profile(current_user=Depends(get_current_regular_user)):
                 if sub_record:
                     subscription_type_name = sub_record["subscriptionTypeName"]
 
-        # Build user response
+            payment_obj = {
+                "userPaymentId": payment_record["userPaymentId"],
+                "transactionId": payment_record["transactionId"],
+                "paymentEvidence": payment_record["paymentEvidence"],
+                "createdAt": payment_record["createdAt"],
+                "subscriptionStartDate": payment_record["subscriptionStartDate"],
+                "subscriptionEndDate": payment_record["subscriptionEndDate"]
+            }
+
+        # Final user data
         user_data = UserOut(
             userId=user["userId"],
             firstName=user["firstName"],
@@ -129,7 +139,8 @@ async def get_my_profile(current_user=Depends(get_current_regular_user)):
             isActive=user["isActive"],
             createdAt=user["createdAt"],
             subscriptionStartDate=subscription_start_date,
-            subscriptionEndDate=subscription_end_date
+            subscriptionEndDate=subscription_end_date,
+            payment=payment_obj
         )
 
         return JSONResponse(

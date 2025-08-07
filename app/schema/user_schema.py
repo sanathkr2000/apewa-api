@@ -47,6 +47,16 @@ class UserLoginResponse(BaseModel):
 
 
 
+# ✅ Define this first
+class PaymentOut(BaseModel):
+    userPaymentId: int
+    transactionId: Optional[str]
+    paymentEvidence: Optional[str]
+    createdAt: datetime
+    subscriptionStartDate: Optional[datetime]
+    subscriptionEndDate: Optional[datetime]
+
+# ✅ Then define this
 class UserOut(BaseModel):
     userId: int
     firstName: str
@@ -56,14 +66,14 @@ class UserOut(BaseModel):
     departmentName: str
     roleId: int
     subscriptionTypeName: str
-    registrationStatus: bool
+    registrationStatus: str
     isActive: bool
     createdAt: datetime
-
+    payment: Optional[PaymentOut]
 
 
 class RegistrationStatusUpdate(BaseModel):
-    status: str
+    status: int
 
 class DepartmentSchema(BaseModel):
     departmentId: int
