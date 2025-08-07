@@ -63,8 +63,7 @@ class UserOut(BaseModel):
 
 
 class RegistrationStatusUpdate(BaseModel):
-    status: bool
-
+    status: str
 
 class DepartmentSchema(BaseModel):
     departmentId: int

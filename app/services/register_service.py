@@ -95,6 +95,8 @@
 import os
 import re
 from datetime import datetime
+from types import SimpleNamespace
+
 from passlib.hash import bcrypt
 from sqlalchemy import insert, select
 from app.db.Users import users, userPayments
@@ -102,6 +104,8 @@ from app.db.database import database
 from fastapi import status
 from fastapi.responses import JSONResponse
 import logging
+
+from app.services.userlogin_service import user_login_details
 
 logger = logging.getLogger("app.register")
 
@@ -139,8 +143,7 @@ async def register_user_with_payment_core(user_data: dict, paymentEvidence, tran
             phoneNumber=user_data["phoneNumber"],
             departmentId=user_data["departmentId"],
             roleId=user_data["roleId"],
-            subscriptionTypeId=user_data["subscriptionTypeId"],
-            registrationStatus=False,
+            registrationStatusId=1,  # Default to 'Pending'
             isActive=True,
             createdAt=datetime.utcnow()
         )
@@ -154,8 +157,7 @@ async def register_user_with_payment_core(user_data: dict, paymentEvidence, tran
 
             original_name = paymentEvidence.filename.replace(" ", "_")
             base_name, ext = os.path.splitext(original_name)
-            base_name = re.sub(r'\W+', '', base_name).strip()  # sanitize base name
-
+            base_name = re.sub(r'\W+', '', base_name).strip()
             filename = f"{base_name}_{timestamp}{ext}"
             file_path = os.path.join(UPLOAD_DIR, filename)
             with open(file_path, "wb") as f:
@@ -164,10 +166,11 @@ async def register_user_with_payment_core(user_data: dict, paymentEvidence, tran
         else:
             logger.info("No payment evidence uploaded", extra={"userId": user_id})
 
-        # Insert payment details (file is optional)
+        # Insert payment details
         await database.execute(
             insert(userPayments).values(
                 userId=user_id,
+                subscriptionTypeId=user_data["subscriptionTypeId"],  # ✅ moved here
                 paymentEvidence=filename,
                 transactionId=transactionId,
                 isActive=True,

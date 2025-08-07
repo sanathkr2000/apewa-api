@@ -48,8 +48,7 @@ users = sa.Table(
     sa.Column("phoneNumber", sa.String(20)),
     sa.Column("departmentId", sa.Integer),
     sa.Column("roleId", sa.Integer),
-    sa.Column("subscriptionTypeId", sa.Integer),
-    sa.Column("registrationStatus", sa.Boolean, default=False),
+    sa.Column("registrationStatusId", sa.Integer),  # Changed from registrationStatus (bool)
     sa.Column("isActive", sa.Boolean, default=True),
     sa.Column("createdAt", sa.DateTime),
 )
@@ -62,4 +61,7 @@ userPayments = sa.Table(
     sa.Column("transactionId", sa.String(100)),
     sa.Column("isActive", sa.Boolean, default=True),
     sa.Column("createdAt", sa.DateTime),
+    sa.Column("subscriptionTypeId", sa.Integer),
+    sa.Column("subscriptionStartDate", sa.DateTime),
+    sa.Column("subscriptionEndDate", sa.DateTime),
 )

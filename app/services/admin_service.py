@@ -2,6 +2,7 @@
 
 import logging
 import json
+from datetime import timedelta, datetime, timezone
 from typing import Optional
 
 from fastapi import status, Header
@@ -9,6 +10,7 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
 from app.db import users
+from app.db.Users import userPayments
 from app.db.database import database
 from app.schema.user_schema import UserOut
 from app.utils.user_utils import fetch_all_users  # Make sure this accepts a token
@@ -62,71 +64,132 @@ async def get_all_users_service(authorization: str = Header(...)):
         )
 
 
-async def update_user_registration_status(user_id: int, is_approved: bool):
+UTC = timezone.utc  # Ensure this is defined
+
+async def update_user_registration_status(user_id: int, registration_status_id):
     try:
-        query = users.select().where(users.c.userId == user_id)
-        user = await database.fetch_one(query)
+        # 🔧 Ensure registration_status_id is an integer
+        registration_status_id = int(registration_status_id)
+
+        print(f"Fetching user with ID: {user_id}")
+        logger.info(f"Fetching user with ID: {user_id}")
+
+        # Step 1: Get user
+        user_query = users.select().where(users.c.userId == user_id)
+        user = await database.fetch_one(user_query)
 
         if not user:
-            logger.warning(f"User with ID {user_id} not found.")
-            return JSONResponse(
-                status_code=status.HTTP_404_NOT_FOUND,
-                content={
-                    "status_code": 404,
-                    "message": f"User with ID {user_id} not found"
-                }
-            )
+            message = f"User with ID {user_id} not found"
+            print(message)
+            logger.warning(message)
+            return JSONResponse(status_code=404, content={"status_code": 404, "message": message})
 
-        #  Check if user is active
         if not user["isActive"]:
-            logger.warning(f"User with ID {user_id} is not active. Registration status not updated.")
-            return JSONResponse(
-                status_code=status.HTTP_403_FORBIDDEN,
-                content={
-                    "status_code": 403,
-                    "message": "Cannot update registration status for inactive user"
-                }
-            )
+            message = f"User {user_id} is inactive"
+            print(message)
+            logger.warning(message)
+            return JSONResponse(status_code=403, content={"status_code": 403, "message": message})
 
-        new_status = 1 if is_approved else 0
+        # ⚠️ Check if already approved
+        current_status = user["registrationStatusId"]
+        if current_status == 3 and registration_status_id == 3:
+            message = "User is already approved. No further action taken."
+            print(message)
+            logger.info(message)
+            return JSONResponse(status_code=409, content={"status_code": 409, "message": message})
 
-        if user["registrationStatus"] == new_status:
-            logger.info(f"User with ID {user_id} already has registrationStatus={new_status}.")
-            return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content={
-                    "status_code": 400,
-                    "message": f"User is already {'approved' if is_approved else 'not approved'}"
-                }
-            )
-
-        update_query = (
+        # Step 2: Update registrationStatusId
+        print(f"Updating registrationStatusId for user {user_id} to {registration_status_id}")
+        logger.info(f"Updating registrationStatusId for user {user_id} to {registration_status_id}")
+        await database.execute(
             users.update()
             .where(users.c.userId == user_id)
-            .values(registrationStatus=new_status)
+            .values(registrationStatusId=registration_status_id)
         )
-        await database.execute(update_query)
-        logger.info(f"User registrationStatus updated to {new_status} for user_id={user_id}")
 
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={
-                "status_code": 200,
-                "message": f"User registration {'approved' if is_approved else 'disapproved'} successfully"
-            }
-        )
+        # Step 3: If approved (3), update subscription dates
+        if registration_status_id == 3:
+            print(f"Admin approved registration for user_id: {user_id}")
+            logger.info(f"Admin approved registration for user_id: {user_id}")
+
+            # Get latest payment
+            payment_query = (
+                userPayments.select()
+                .where(userPayments.c.userId == user_id)
+                .order_by(userPayments.c.createdAt.desc())
+            )
+            user_payment = await database.fetch_one(payment_query)
+
+            if not user_payment:
+                message = f"No userPayments record found for user_id: {user_id}"
+                print(message)
+                logger.warning(message)
+                return JSONResponse(status_code=404, content={"status_code": 404, "message": message})
+
+            subscription_type_id = user_payment["subscriptionTypeId"]
+            start_date = datetime.now(UTC)
+            print(f"Start date: {start_date}")
+            logger.info(f"Start date for subscription: {start_date}")
+            print(f"User payment record: {user_payment}")
+
+            if subscription_type_id == 1:
+                end_date = None
+                print("Subscription type is Lifetime")
+                logger.info("Subscription type is Lifetime. No end date.")
+            elif subscription_type_id == 2:
+                end_date = start_date + timedelta(days=365)
+                print(f"Subscription type is Yearly, end_date: {end_date}")
+                logger.info(f"Subscription type is Yearly. End date: {end_date}")
+            else:
+                message = f"Invalid subscriptionTypeId: {subscription_type_id}"
+                print(message)
+                logger.error(message)
+                return JSONResponse(status_code=400, content={"status_code": 400, "message": message})
+
+            # Step 4: Update payment record
+            print(f"Updating payment record for user_id: {user_id}")
+            logger.info(f"Updating payment record for user_id: {user_id}")
+            await database.execute(
+                userPayments.update()
+                .where(userPayments.c.userPaymentId == user_payment["userPaymentId"])
+                .values(
+                    subscriptionStartDate=start_date,
+                    subscriptionEndDate=end_date
+                )
+            )
+
+            message = "Registration status and subscription dates updated successfully"
+            print(message)
+            logger.info(message)
+
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "status_code": 200,
+                    "message": message,
+                    "start_date": start_date.isoformat(),
+                    "end_date": end_date.isoformat() if end_date else None
+                }
+            )
+
+        # For statuses other than 3
+        message = f"Registration status updated for user_id: {user_id}"
+        print(message)
+        logger.info(message)
+        return JSONResponse(status_code=200, content={"status_code": 200, "message": message})
 
     except Exception as e:
-        logger.exception("Error occurred while updating user registration status")
+        message = f"Exception occurred: {str(e)}"
+        print(message)
+        logger.exception("Error updating registration status")
         return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             content={
                 "status_code": 500,
-                "message": "Internal Server Error",
+                "message": "Internal server error",
                 "error": str(e)
             }
         )
-
 
 
 async def update_user_details(user_id: int, user_data: dict):
