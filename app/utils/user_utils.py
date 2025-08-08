@@ -20,9 +20,9 @@ logger = logging.getLogger(__name__)
 
 async def fetch_user_by_email(email: str):
     logger.debug(f"Fetching user by email: {email}")
-    query = users.select().where((users.c.email == email) & (users.c.isActive == True))
-    user = await database.fetch_one(query)
-    return user
+    query = users.select().where(users.c.email == email)
+    return await database.fetch_one(query)
+
 
 # async def fetch_all_users():
 #     query = users.select()

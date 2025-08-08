@@ -84,6 +84,18 @@ async def get_current_regular_user(current_user=Depends(get_current_user)):
         )
     return current_user
 
+async def get_current_admin_or_regular_user(current_user=Depends(get_current_user)):
+    if current_user["roleId"] not in [1, 2]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "status_code": status.HTTP_403_FORBIDDEN,
+                "message": "Access denied: Invalid role"
+            }
+        )
+    return current_user
+
+
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 

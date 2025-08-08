@@ -81,46 +81,47 @@ async def user_login_details(login):
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content=UserLoginResponse(
-                status_code=status.HTTP_403_FORBIDDEN,
-                message="Invalid credentials"
-            ).model_dump()
+                status_code=403,
+                message="Invalid email"
+            ).model_dump(exclude_none=True)
         )
 
     # Convert to dict
     user = dict(user_record)
 
-    try:
-        # Password verification
-        if not verify_password(login.user_password, user["password"]):
-            logger.warning("Incorrect password", extra={"email": login.user_email})
-            return JSONResponse(
-                status_code=status.HTTP_403_FORBIDDEN,
-                content=UserLoginResponse(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    message="Invalid credentials"
-                ).model_dump()
-            )
-    except Exception as e:
-        logger.exception("Password verification failed", extra={"email": login.user_email})
+    # Check if user is deactivated
+    if not user.get("isActive", True):
+        logger.warning("User is deactivated", extra={"email": login.user_email})
         return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_403_FORBIDDEN,
             content=UserLoginResponse(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                message="Password verification failed"
-            ).model_dump()
+                status_code=403,
+                message="User is deactivated. Please contact the administrator."
+            ).model_dump(exclude_none=True)
         )
 
+    # Verify password
+    if not verify_password(login.user_password, user["password"]):
+        logger.warning("Incorrect password", extra={"email": login.user_email})
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content=UserLoginResponse(
+                status_code=403,
+                message="Invalid password"
+            ).model_dump(exclude_none=True)
+        )
+
+    # Generate token
     try:
-        # FIXED: pass both email and roleId
         token = create_access_token(email=login.user_email, role_id=user["roleId"])
     except Exception as e:
         logger.exception("Token creation failed", extra={"email": login.user_email})
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=UserLoginResponse(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status_code=500,
                 message="Token creation failed"
-            ).model_dump()
+            ).model_dump(exclude_none=True)
         )
 
     # Successful login

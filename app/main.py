@@ -72,6 +72,7 @@ from starlette.staticfiles import StaticFiles
 
 from app.db.database import database
 from app.logging_conf import configure_logging
+from app.routers.forgot_password_router import forgot_password_router
 
 # Routers
 from app.routers.register import register_router
@@ -122,6 +123,7 @@ app.include_router(user_login_router, prefix="/user", tags=["User Login"])
 app.include_router(admin_router, prefix="/admin", tags=["Admin Users"])
 app.include_router(user_router)
 app.include_router(password_router)
+app.include_router(forgot_password_router)
 
 # Serve static files from 'apewa-api/uploads'
 

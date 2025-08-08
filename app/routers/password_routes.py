@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Form
 from fastapi.responses import JSONResponse
 from app.services.password_service import reset_user_password
-from app.security import get_current_regular_user
+from app.security import get_current_regular_user, get_current_admin_or_regular_user
 
 password_router = APIRouter()
 
@@ -13,7 +13,9 @@ password_router = APIRouter()
 async def reset_password(
     current_password: str = Form(...),
     new_password: str = Form(...),
-    current_user=Depends(get_current_regular_user)
+    # current_user=Depends(get_current_regular_user)
+    current_user=Depends(get_current_admin_or_regular_user)  # changed here
+
 ):
     if isinstance(current_user, JSONResponse):
         return current_user

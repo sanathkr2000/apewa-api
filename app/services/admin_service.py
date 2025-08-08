@@ -161,7 +161,7 @@ async def update_user_registration_status(user_id: int, registration_status_id):
 
         # OTHER STATUS CHANGES
         else:
-            message = f"Registration status updated for user_id: {user_id}"
+            message = f"Registration status approved "
             logger.info(message)
             return JSONResponse(status_code=200, content={
                 "status_code": 200,
