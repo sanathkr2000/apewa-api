@@ -10,6 +10,8 @@ from app.db.Departments import departments
 from app.db.SubscriptionTypes import subscriptionTypes
 from sqlalchemy import select
 from fastapi import status
+
+from app.db.registrationStatus import registrationStatus
 from app.schema.user_schema import FetchUserResponse, DepartmentData, SubscriptionTypeData, PaymentData
 from sqlalchemy import desc
 
@@ -33,6 +35,7 @@ async def fetch_all_users():
         .outerjoin(userPayments, users.c.userId == userPayments.c.userId)
         .outerjoin(subscriptionTypes, userPayments.c.subscriptionTypeId == subscriptionTypes.c.subscriptionTypeId)
         .outerjoin(departments, users.c.departmentId == departments.c.departmentId)
+        .outerjoin(registrationStatus, users.c.registrationStatusId == registrationStatus.c.registrationStatusId)
     )
 
     query = (
@@ -43,7 +46,7 @@ async def fetch_all_users():
             users.c.email,
             users.c.phoneNumber,
             users.c.roleId,
-            users.c.registrationStatusId.label("registrationStatus"),
+            users.c.registrationStatusId.label("registrationStatus"),  # ✅ keep as ID
             users.c.isActive,
             users.c.createdAt,
 
@@ -77,7 +80,7 @@ async def fetch_all_users():
                 "email": row["email"],
                 "phoneNumber": row["phoneNumber"],
                 "roleId": row["roleId"],
-                "registrationStatus": bool(row["registrationStatus"]),
+                "registrationStatus": row["registrationStatus"],  # ✅ now integer
                 "isActive": row["isActive"],
                 "createdAt": row["createdAt"],
                 "department": {
