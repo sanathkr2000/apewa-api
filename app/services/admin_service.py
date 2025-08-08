@@ -80,13 +80,11 @@ async def update_user_registration_status(user_id: int, registration_status_id):
 
         if not user:
             message = f"User with ID {user_id} not found"
-            print(message)
             logger.warning(message)
             return JSONResponse(status_code=404, content={"status_code": 404, "message": message})
 
         if not user["isActive"]:
             message = f"User {user_id} is inactive"
-            print(message)
             logger.warning(message)
             return JSONResponse(status_code=403, content={"status_code": 403, "message": message})
 
@@ -94,102 +92,90 @@ async def update_user_registration_status(user_id: int, registration_status_id):
         current_status = user["registrationStatusId"]
         if current_status == 3 and registration_status_id == 3:
             message = "User is already approved. No further action taken."
-            print(message)
             logger.info(message)
             return JSONResponse(status_code=409, content={"status_code": 409, "message": message})
 
-        # Step 2: Update registrationStatusId
-        print(f"Updating registrationStatusId for user {user_id} to {registration_status_id}")
-        logger.info(f"Updating registrationStatusId for user {user_id} to {registration_status_id}")
+        # Step 2: Update registrationStatusId in users table
         await database.execute(
             users.update()
             .where(users.c.userId == user_id)
             .values(registrationStatusId=registration_status_id)
         )
 
-        # Step 3: If approved (3), update subscription dates
-        if registration_status_id == 3:
-            print(f"Admin approved registration for user_id: {user_id}")
-            logger.info(f"Admin approved registration for user_id: {user_id}")
+        # Step 3: Handle subscription updates based on status change
+        payment_query = (
+            userPayments.select()
+            .where(userPayments.c.userId == user_id)
+            .order_by(userPayments.c.createdAt.desc())
+        )
+        user_payment = await database.fetch_one(payment_query)
 
-            # Get latest payment
-            payment_query = (
-                userPayments.select()
-                .where(userPayments.c.userId == user_id)
-                .order_by(userPayments.c.createdAt.desc())
-            )
-            user_payment = await database.fetch_one(payment_query)
+        if not user_payment:
+            message = f"No userPayments record found for user_id: {user_id}"
+            logger.warning(message)
+            return JSONResponse(status_code=404, content={"status_code": 404, "message": message})
 
-            if not user_payment:
-                message = f"No userPayments record found for user_id: {user_id}"
-                print(message)
-                logger.warning(message)
-                return JSONResponse(status_code=404, content={"status_code": 404, "message": message})
-
-            subscription_type_id = user_payment["subscriptionTypeId"]
+        # CASE 1: 2 → 3
+        if current_status == 2 and registration_status_id == 3:
             start_date = datetime.now(UTC)
-            print(f"Start date: {start_date}")
-            logger.info(f"Start date for subscription: {start_date}")
-            print(f"User payment record: {user_payment}")
+            subscription_type_id = user_payment["subscriptionTypeId"]
 
-            if subscription_type_id == 1:
+            if subscription_type_id == 1:  # Lifetime
                 end_date = None
-                print("Subscription type is Lifetime")
-                logger.info("Subscription type is Lifetime. No end date.")
-            elif subscription_type_id == 2:
+            elif subscription_type_id == 2:  # Yearly
                 end_date = start_date + timedelta(days=365)
-                print(f"Subscription type is Yearly, end_date: {end_date}")
-                logger.info(f"Subscription type is Yearly. End date: {end_date}")
             else:
                 message = f"Invalid subscriptionTypeId: {subscription_type_id}"
-                print(message)
                 logger.error(message)
                 return JSONResponse(status_code=400, content={"status_code": 400, "message": message})
 
-            # Step 4: Update payment record
-            print(f"Updating payment record for user_id: {user_id}")
-            logger.info(f"Updating payment record for user_id: {user_id}")
             await database.execute(
                 userPayments.update()
                 .where(userPayments.c.userPaymentId == user_payment["userPaymentId"])
-                .values(
-                    subscriptionStartDate=start_date,
-                    subscriptionEndDate=end_date
-                )
+                .values(subscriptionStartDate=start_date, subscriptionEndDate=end_date)
             )
 
-            message = "Registration status and subscription dates updated successfully"
-            print(message)
+            message = "User approved: subscription dates set"
             logger.info(message)
+            return JSONResponse(status_code=200, content={
+                "status_code": 200,
+                "message": message,
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat() if end_date else None
+            })
 
-            return JSONResponse(
-                status_code=200,
-                content={
-                    "status_code": 200,
-                    "message": message,
-                    "start_date": start_date.isoformat(),
-                    "end_date": end_date.isoformat() if end_date else None
-                }
+        # CASE 2: 3 → 2
+        elif current_status == 3 and registration_status_id == 2:
+            await database.execute(
+                userPayments.update()
+                .where(userPayments.c.userPaymentId == user_payment["userPaymentId"])
+                .values(subscriptionStartDate=None, subscriptionEndDate=None)
             )
 
-        # For statuses other than 3
-        message = f"Registration status updated for user_id: {user_id}"
-        print(message)
-        logger.info(message)
-        return JSONResponse(status_code=200, content={"status_code": 200, "message": message})
+            message = "User status downgraded: subscription dates cleared"
+            logger.info(message)
+            return JSONResponse(status_code=200, content={
+                "status_code": 200,
+                "message": message
+            })
+
+        # OTHER STATUS CHANGES
+        else:
+            message = f"Registration status updated for user_id: {user_id}"
+            logger.info(message)
+            return JSONResponse(status_code=200, content={
+                "status_code": 200,
+                "message": message
+            })
 
     except Exception as e:
-        message = f"Exception occurred: {str(e)}"
-        print(message)
         logger.exception("Error updating registration status")
-        return JSONResponse(
-            status_code=500,
-            content={
-                "status_code": 500,
-                "message": "Internal server error",
-                "error": str(e)
-            }
-        )
+        return JSONResponse(status_code=500, content={
+            "status_code": 500,
+            "message": "Internal server error",
+            "error": str(e)
+        })
+
 
 
 async def update_user_details(user_id: int, user_data: dict):
