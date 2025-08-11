@@ -1,58 +1,117 @@
-from fastapi import HTTPException, status
+from fastapi import status
+from datetime import datetime, timedelta
+import secrets
 from app.db.Users import users
+from app.db.PasswordResetOtp import passwordResetOtp
 from app.db.database import database
 from app.logging_conf import logger
 from app.security import hash_password
-import secrets
-import string
 from app.utils.email_service import send_email
+import os
 
-async def forgot_user_password(email: str) -> bool:
+async def send_forgot_password_otp(email: str) -> dict:
     try:
-        # Step 1: Check if user exists
         query = users.select().where(users.c.email == email)
         db_user = await database.fetch_one(query)
 
         if not db_user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found with this email"
-            )
+            return {
+                "statusCode": status.HTTP_404_NOT_FOUND,
+                "message": "User not found with this email"
+            }
 
-        # Step 2: Generate temporary password
-        temp_password = "".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(8))
+        otp_code = str(secrets.randbelow(1000000)).zfill(6)
+        OTP_EXPIRY_MINUTES = int(os.getenv("OTP_EXPIRY_MINUTES", "5"))
 
-        # Step 3: Hash the temporary password
-        hashed_temp_password = hash_password(temp_password)
+        expiry_time = datetime.utcnow() + timedelta(minutes=OTP_EXPIRY_MINUTES)
 
-        # Step 4: Update DB
-        update_query = (
-            users.update()
-            .where(users.c.userId == db_user["userId"])
-            .values(password=hashed_temp_password)
+        insert_query = passwordResetOtp.insert().values(
+            userId=db_user["userId"],
+            otpCode=otp_code,
+            expiryTime=expiry_time,
+            isUsed=False
         )
-        await database.execute(update_query)
+        await database.execute(insert_query)
 
-        # Step 5: Send email
-        subject = "Password Reset - Temporary Password"
-        body = (
-            f"Hello {db_user['firstName']},\n\n"
-            f"Your password has been reset. Here is your temporary password:\n\n"
-            f"{temp_password}\n\n"
-            f"Please log in and change your password.\n\n"
-            f"Regards,\nSupport Team"
+        subject = "Password Reset OTP"
+        body_text = f"Hello {db_user['firstName']},\nYour OTP is: {otp_code}\nIt will expire in {OTP_EXPIRY_MINUTES} minutes."
+        body_html = f"<p>Hello {db_user['firstName']},</p><p>Your OTP is:</p><h2>{otp_code}</h2><p>It will expire in {OTP_EXPIRY_MINUTES} minutes.</p>"
+
+        email_sent = send_email(
+            to_email=email,
+            to_name=db_user["firstName"],
+            subject=subject,
+            body_html=body_html,
+            body_text=body_text
         )
 
-        email_sent = await send_email(to=email, subject=subject, body=body)
+        if not email_sent:
+            return {
+                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "Failed to send OTP email"
+            }
 
-        return email_sent
-
-    except HTTPException as http_ex:
-        raise http_ex
+        return {
+            "statusCode": status.HTTP_200_OK,
+            "message": "OTP sent to email",
+            "userId": db_user["userId"]
+        }
 
     except Exception as e:
-        logger.error(f"Unexpected error during forgot password: {str(e)}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error while processing forgot password"
+        logger.error(f"Error sending forgot password OTP: {e}", exc_info=True)
+        return {
+            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "message": "Internal server error"
+        }
+
+
+async def verify_otp_and_reset_password(user_id: int, otp: str, new_password: str) -> dict:
+    """Verify OTP and reset password, return dict with statusCode and message"""
+    try:
+        otp_query = (
+            passwordResetOtp.select()
+            .where(passwordResetOtp.c.userId == user_id)
+            .where(passwordResetOtp.c.otpCode == otp)
+            .where(passwordResetOtp.c.isUsed == False)
         )
+        db_otp = await database.fetch_one(otp_query)
+
+        if not db_otp:
+            return {
+                "statusCode": status.HTTP_400_BAD_REQUEST,
+                "message": "Invalid OTP"
+            }
+
+        if datetime.utcnow() > db_otp["expiryTime"]:
+            return {
+                "statusCode": status.HTTP_400_BAD_REQUEST,
+                "message": "OTP expired"
+            }
+
+        hashed_password = hash_password(new_password)
+
+        update_user_query = (
+            users.update()
+            .where(users.c.userId == user_id)
+            .values(password=hashed_password)
+        )
+        await database.execute(update_user_query)
+
+        update_otp_query = (
+            passwordResetOtp.update()
+            .where(passwordResetOtp.c.otpId == db_otp["otpId"])
+            .values(isUsed=True)
+        )
+        await database.execute(update_otp_query)
+
+        return {
+            "statusCode": status.HTTP_200_OK,
+            "message": "Password reset successful"
+        }
+
+    except Exception as e:
+        logger.error(f"Error verifying OTP: {e}", exc_info=True)
+        return {
+            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "message": "Internal server error"
+        }

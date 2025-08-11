@@ -18,3 +18,5 @@ starlette~=0.47.2
 Flask~=3.1.1
 asgiref~=3.9.1
 aiosmtplib
+requests
+pytz

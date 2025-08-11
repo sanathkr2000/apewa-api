@@ -72,7 +72,7 @@ from starlette.staticfiles import StaticFiles
 
 from app.db.database import database
 from app.logging_conf import configure_logging
-from app.routers.forgot_password_router import forgot_password_router
+from app.routers import forgot_password_router
 
 # Routers
 from app.routers.register import register_router
@@ -80,6 +80,7 @@ from app.routers.userlogin import user_login_router
 from app.routers.admin import admin_router
 from app.routers.user_routes import user_router
 from app.routers.password_routes import password_router
+from app.routers.forgot_password_router import forgot_password_router  # ✅ FIXED
 
 logger = logging.getLogger(__name__)
 

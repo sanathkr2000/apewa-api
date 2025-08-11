@@ -90,10 +90,8 @@ async def update_user_registration_status(user_id: int, registration_status_id):
 
         # ⚠️ Check if already approved
         current_status = user["registrationStatusId"]
-        if current_status == 3 and registration_status_id == 3:
-            message = "User is already approved. No further action taken."
-            logger.info(message)
-            return JSONResponse(status_code=409, content={"status_code": 409, "message": message})
+        print("Current status from DB:", current_status)
+        print("Requested status:", registration_status_id)
 
         # Step 2: Update registrationStatusId in users table
         await database.execute(
@@ -115,8 +113,8 @@ async def update_user_registration_status(user_id: int, registration_status_id):
             logger.warning(message)
             return JSONResponse(status_code=404, content={"status_code": 404, "message": message})
 
-        # CASE 1: 2 → 3
-        if current_status == 2 and registration_status_id == 3:
+        # CASE 1: Any status → 3 (Approval) → set subscription dates
+        if registration_status_id == 3:
             start_date = datetime.now(UTC)
             subscription_type_id = user_payment["subscriptionTypeId"]
 
@@ -129,11 +127,12 @@ async def update_user_registration_status(user_id: int, registration_status_id):
                 logger.error(message)
                 return JSONResponse(status_code=400, content={"status_code": 400, "message": message})
 
-            await database.execute(
+            update_result = await database.execute(
                 userPayments.update()
                 .where(userPayments.c.userPaymentId == user_payment["userPaymentId"])
                 .values(subscriptionStartDate=start_date, subscriptionEndDate=end_date)
             )
+            print("Update result (approval):", update_result)
 
             message = "User approved: subscription dates set"
             logger.info(message)
@@ -146,11 +145,12 @@ async def update_user_registration_status(user_id: int, registration_status_id):
 
         # CASE 2: 3 → 2
         elif current_status == 3 and registration_status_id == 2:
-            await database.execute(
+            update_result = await database.execute(
                 userPayments.update()
                 .where(userPayments.c.userPaymentId == user_payment["userPaymentId"])
                 .values(subscriptionStartDate=None, subscriptionEndDate=None)
             )
+            print("Update result (downgrade):", update_result)
 
             message = "User status downgraded: subscription dates cleared"
             logger.info(message)
@@ -161,7 +161,7 @@ async def update_user_registration_status(user_id: int, registration_status_id):
 
         # OTHER STATUS CHANGES
         else:
-            message = f"Registration status approved "
+            message = "Registration status updated"
             logger.info(message)
             return JSONResponse(status_code=200, content={
                 "status_code": 200,
