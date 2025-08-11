@@ -1,7 +1,8 @@
 # forgot_password_service.py
+from zoneinfo import ZoneInfo  # Requires Python 3.9+ and tzdata installed
 
 from fastapi import status
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import secrets
 import os
 
@@ -84,13 +85,23 @@ async def verify_otp(user_id: int, otp: str) -> dict:
                 "message": "Invalid OTP"
             }
 
-        if datetime.utcnow() > db_otp["expiryTime"]:
+        expiry_time = db_otp["expiryTime"]
+
+        # If expiry_time is naive (no tzinfo), assign your server timezone here, e.g. Asia/Kolkata
+        if expiry_time.tzinfo is None:
+            expiry_time = expiry_time.replace(tzinfo=ZoneInfo("Asia/Kolkata"))
+
+        # Convert expiry_time to UTC
+        expiry_time_utc = expiry_time.astimezone(timezone.utc)
+
+        # Compare with current UTC time
+        if datetime.now(timezone.utc) > expiry_time_utc:
             return {
                 "statusCode": status.HTTP_400_BAD_REQUEST,
                 "message": "OTP expired"
             }
 
-        # Mark OTP as used here to prevent reuse
+        # Mark OTP as used
         update_otp_query = (
             passwordResetOtp.update()
             .where(passwordResetOtp.c.otpId == db_otp["otpId"])

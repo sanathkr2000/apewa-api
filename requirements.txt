@@ -20,3 +20,4 @@ asgiref~=3.9.1
 aiosmtplib
 requests
 pytz
+tzdata
