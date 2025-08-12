@@ -25,8 +25,15 @@ async def send_forgot_password_otp(email: str) -> dict:
                 "message": "User not found with this email"
             }
 
+        # Check if user is active
+        if db_user["isActive"] != 1:
+            return {
+                "statusCode": status.HTTP_403_FORBIDDEN,
+                "message": "User is deactivated. Cannot send OTP."
+            }
+
         otp_code = str(secrets.randbelow(1000000)).zfill(6)
-        OTP_EXPIRY_MINUTES = int(os.getenv("OTP_EXPIRY_MINUTES", "5"))
+        OTP_EXPIRY_MINUTES = int(os.getenv("OTP_EXPIRY_MINUTES"))
         expiry_time = datetime.utcnow() + timedelta(minutes=OTP_EXPIRY_MINUTES)
 
         insert_query = passwordResetOtp.insert().values(
@@ -85,17 +92,7 @@ async def verify_otp(user_id: int, otp: str) -> dict:
                 "message": "Invalid OTP"
             }
 
-        expiry_time = db_otp["expiryTime"]
-
-        # If expiry_time is naive (no tzinfo), assign your server timezone here, e.g. Asia/Kolkata
-        if expiry_time.tzinfo is None:
-            expiry_time = expiry_time.replace(tzinfo=ZoneInfo("Asia/Kolkata"))
-
-        # Convert expiry_time to UTC
-        expiry_time_utc = expiry_time.astimezone(timezone.utc)
-
-        # Compare with current UTC time
-        if datetime.now(timezone.utc) > expiry_time_utc:
+        if datetime.utcnow() > db_otp["expiryTime"]:
             return {
                 "statusCode": status.HTTP_400_BAD_REQUEST,
                 "message": "OTP expired"

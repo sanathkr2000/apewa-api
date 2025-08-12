@@ -1,6 +1,7 @@
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
 from functools import lru_cache
+from typing import Optional
 
 
 class BaseConfig(BaseSettings):
@@ -28,12 +29,12 @@ class TestConfig(GlobalConfig):
 
 @lru_cache()
 def get_config(env_state: str):
+    """Return the correct config based on the environment state."""
     configs = {"dev": DevConfig, "prod": ProdConfig, "test": TestConfig}
-    return configs[env_state]()
+    return configs.get(env_state, DevConfig)()  # Default to DevConfig if not found
 
-
+# Load the environment configuration from the .env file
 base_config = BaseConfig()
-
 config = get_config(base_config.ENV_STATE)
-print(f"Current ENV_STATE: {base_config.ENV_STATE}")
 
+print(f"Current ENV_STATE: {base_config.ENV_STATE}")  # Debugging output for the ENV_STATE
