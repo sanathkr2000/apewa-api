@@ -1,4 +1,3 @@
-
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -12,6 +11,7 @@ from starlette.staticfiles import StaticFiles
 from app.db.database import database
 from app.logging_conf import configure_logging
 from app.routers import forgot_password_router
+from fastapi import Request
 
 # Routers
 from app.routers.register import register_router
@@ -56,7 +56,32 @@ app.add_middleware(
 def read_root():
     return {"message": "APEWA Backend APIs"}
 
-# Routers - no need to prefix with `/api`
+
+# @app.get("/debug/payment_proofs-images")
+# def get_payment_proofs_images(request: Request):
+#     folder_path = os.path.join(UPLOADS_DIR, "payment_proofs")
+#     image_extensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"}
+# 
+#     if not os.path.isdir(folder_path):
+#         return {"error": f"Folder not found: {folder_path}"}
+# 
+#     images = []
+#     for file_name in os.listdir(folder_path):
+#         if os.path.splitext(file_name)[1].lower() in image_extensions:
+#             # Manually build URL
+#             # url = str(request.base_url).rstrip("/") + "/api/images/uploads/payment_proofs/" + file_name
+#             # url = str(request.base_url).rstrip("/") + "/images/uploads/payment_proofs/" + file_name
+#             url = str(request.base_url).rstrip("/") + "/uploads/payment_proofs/" + file_name
+# 
+#             images.append({
+#                 "filename": file_name,
+#                 "url": url
+#             })
+# 
+#     return {"images": images}
+
+
+# Routers - no need to prefix with /api
 app.include_router(register_router, prefix="/register")
 app.include_router(user_login_router, prefix="/user", tags=["User Login"])
 app.include_router(admin_router, prefix="/admin", tags=["Admin Users"])
